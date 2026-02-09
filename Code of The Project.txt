@@ -1,0 +1,102 @@
+/*
+ * Temperature Monitoring System - Tinkercad Version
+ * LCD Display (16x2)
+ * 
+ * Hardware in Tinkercad:
+ * - Arduino Uno R3
+ * - TMP36 Temperature Sensor
+ * - LCD 16x2
+ * - Potentiometer (for LCD contrast)
+ * - Breadboard
+ * 
+ * Circuit Connections:
+ * 
+ * TMP36:
+ * Pin 1 (Left)   → 5V
+ * Pin 2 (Middle) → A0
+ * Pin 3 (Right)  → GND
+ * 
+ * LCD 16x2:
+ * Pin 1  (VSS)  → GND
+ * Pin 2  (VDD)  → 5V
+ * Pin 3  (V0)   → Potentiometer middle pin
+ * Pin 4  (RS)   → Arduino Pin 12
+ * Pin 5  (RW)   → GND
+ * Pin 6  (E)    → Arduino Pin 11
+ * Pin 11 (D4)   → Arduino Pin 5
+ * Pin 12 (D5)   → Arduino Pin 4
+ * Pin 13 (D6)   → Arduino Pin 3
+ * Pin 14 (D7)   → Arduino Pin 2
+ * Pin 15 (LED+) → 5V
+ * Pin 16 (LED-) → GND
+ * 
+ * Potentiometer:
+ * Left pin   → 5V
+ * Middle pin → LCD Pin 3
+ * Right pin  → GND
+ */
+
+#include <LiquidCrystal.h>
+
+// Initialize LCD with pin numbers: RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+// TMP36 connected to analog pin A0
+const int sensorPin = A0;
+
+void setup() {
+  // Initialize Serial Monitor for debugging
+  Serial.begin(9600);
+  
+  // Initialize LCD with 16 columns and 2 rows
+  lcd.begin(16, 2);
+  
+  // Display startup message
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Temperature");
+  lcd.setCursor(0, 1);
+  lcd.print("Monitor v1.0");
+  
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  // Read the analog value from TMP36
+  int sensorValue = analogRead(sensorPin);
+  
+  // Convert to voltage (0-1023 → 0-5V)
+  float voltage = sensorValue * (5.0 / 1023.0);
+  
+  // Convert voltage to temperature in Celsius
+  float temperatureC = (voltage - 0.5) * 100.0;
+  
+  // Convert to Fahrenheit
+  float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
+  
+  // Clear LCD for new reading
+  lcd.clear();
+  
+  // Display on first line: Temperature in Celsius
+  lcd.setCursor(0, 0);
+  lcd.print("Temp: ");
+  lcd.print(temperatureC, 1);  // 1 decimal place
+  lcd.print(" C");
+  
+  // Display on second line: Temperature in Fahrenheit
+  lcd.setCursor(0, 1);
+  lcd.print("Temp: ");
+  lcd.print(temperatureF, 1);  // 1 decimal place
+  lcd.print(" F");
+  
+  // Also print to Serial Monitor for debugging
+  Serial.print("Temperature: ");
+  Serial.print(temperatureC);
+  Serial.print("°C / ");
+  Serial.print(temperatureF);
+  Serial.println("°F");
+  
+  // Wait 1 second before next reading
+  delay(1000);
+}
